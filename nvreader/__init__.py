@@ -1,1 +1,1 @@
-from .read_dir import DirectoryImageReader
+from nvreader.read_dir import DirectoryImageReader
