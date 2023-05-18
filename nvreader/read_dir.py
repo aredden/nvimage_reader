@@ -3,7 +3,7 @@ from os import PathLike
 from pathlib import Path
 from typing import List, Union
 from loguru import logger
-from .dali_dir_reader import BasePipeline
+from .dali_dir_reader import BasePipeline, InterpTypes
 try:
     import cupy as cp
 except Exception as e:
@@ -56,6 +56,11 @@ class DirectoryImageReader(object):
         batch_size=1,
         threads=1,
         to_cupy=True,
+        return_paths=False,
+        resize_to=None,
+        crop_to=None,
+        interpolation=InterpTypes.LANCZOS,
+        antialias=True
     ) -> None:
         if isinstance(image_paths_or_dir,(list,tuple,set)):
             image_paths_or_dir = list(image_paths_or_dir)
@@ -79,10 +84,15 @@ class DirectoryImageReader(object):
             num_threads=threads,
             device_id=0 if device < 1 else device,
             use_cuda=device >= 0,
+            resize_to=resize_to,
+            crop_to=crop_to,
+            interpolation=interpolation,
+            antialias=antialias
         )
         self.index = 0
         self.pipeline.build()
         self.to_cupy = to_cupy
+        self.return_paths = return_paths
     def __len__(self):
         return len(self.resolved_paths)
     
@@ -96,10 +106,20 @@ class DirectoryImageReader(object):
             r = self.pipeline.run()    
             self.index += self.batch_size
             ims = r[0]
+            paths = None
+            if self.return_paths:
+                indices = r[1]
+                if hasattr(indices,'as_cpu'):
+                    indices = indices.as_cpu()
+                indices = indices.as_array().flatten()
+                paths = [self.resolved_paths[i] for i in indices]
+
             if self.device == 'gpu' and self.to_cupy:
                 ims = [cp.asarray(i) for i in ims] if self.batch_size > 1 else cp.asarray(ims[0])
             else:
                 ims = ims.as_cpu().as_array()
-            return ims
+            if paths is None:
+                return ims
+            return ims, paths
         else:
             raise StopIteration

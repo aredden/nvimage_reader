@@ -3,6 +3,14 @@ from nvidia.dali.pipeline import Pipeline
 import nvidia.dali.types as types
 import nvidia.dali.fn as fn
 from nvidia.dali import pipeline_def
+from enum import Enum
+
+class InterpTypes(Enum):
+    CUBIC = types.INTERP_CUBIC
+    GAUSSIAN = types.INTERP_GAUSSIAN
+    LANCZOS = types.INTERP_LANCZOS3
+    LINEAR = types.INTERP_LINEAR
+    NEAREST = types.INTERP_NN
 
 def BasePipeline(
     file_list,
@@ -11,7 +19,11 @@ def BasePipeline(
     device_id=0,
     seed=12,
     resize_to=None,
-    use_cuda=False
+    crop_to=None,
+    use_cuda=False,
+    resize_mode="not_smaller",
+    interpolation:InterpTypes=InterpTypes.LANCZOS,
+    antialias=True,
 ):
     @pipeline_def(
         batch_size=batch_size, num_threads=num_threads, device_id=device_id, seed=seed
@@ -23,11 +35,17 @@ def BasePipeline(
             images = fn.resize(
                 images,
                 size=resize_to,
-                mode="not_smaller",
-                interp_type=types.INTERP_LANCZOS3,
-                antialias=True,
+                mode=resize_mode,
+                interp_type=interpolation.value,
+                antialias=antialias,
                 device="gpu" if use_cuda else "cpu",
             )
+        if crop_to is not None:
+            images = fn.crop(
+                images,
+                crop=[crop_to,crop_to] if isinstance(crop_to,int) else crop_to,
+            )
+
         return images, labels
 
     pipe: Pipeline = dataloader_graph()
