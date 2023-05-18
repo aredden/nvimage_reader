@@ -46,7 +46,7 @@ def handle_is_list(paths: List[Path], exts: List[str], debug=False):
     imout.write_text("\n".join(imout_ims))
     return imout, paths, list(range(len(imout_ims)))
 
-class DirectoryImageReader(object):
+class DirReader(object):
     def __init__(
         self,
         image_paths_or_dir: Union[List[PathLike], Path, str],
