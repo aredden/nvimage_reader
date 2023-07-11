@@ -5,7 +5,7 @@ print(find_packages("."))
 setup(
     name="nvreader",
     author="Alex Redden",
-    version="0.0.3",
+    version="0.0.4",
     py_modules=["nvreader.read_dir", "nvreader.dali_dir_reader",'nvreader.__init__'],
     include_dirs=['nvreader'],
     packages=find_packages("."),
