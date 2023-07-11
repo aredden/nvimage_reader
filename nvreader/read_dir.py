@@ -1,7 +1,7 @@
 from hashlib import md5
 from os import PathLike
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 from loguru import logger
 import numpy as np
 from nvidia.dali.types import DALIDataType
@@ -120,17 +120,17 @@ class DirReader(object):
         self,
         image_paths_or_dir: Union[List[PathLike], Path, str],
         recursive: bool = True,
-        image_extensions=[".jpg", ".jpeg", ".png"],
-        device=0,
-        batch_size=1,
-        threads=1,
-        to_cupy=False,
-        to_torch=False,
-        return_paths=False,
-        return_labels=False,
-        resize_to=None,
-        crop_to=None,
-        interpolation=InterpTypes.LANCZOS,
+        image_extensions: List[str] = [".jpg", ".jpeg", ".png", ".webp"],
+        device: int = 0,
+        batch_size: int = 1,
+        threads: int = 1,
+        to_cupy: bool = False,
+        to_torch: bool = False,
+        return_paths: bool = False,
+        return_labels: bool = False,
+        resize_to: Union[int, Tuple[int, int]] = None,
+        crop_to: Union[int, Tuple[int, int]] = None,
+        interpolation: InterpTypes = InterpTypes.LANCZOS,
         resize_mode: ResizeMode = ResizeMode.NOT_SMALLER,
         return_color: ImageReturnShape = ImageReturnShape.RGB,
         antialias=True,
