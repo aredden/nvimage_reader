@@ -5,7 +5,7 @@
 ### Installation
 
 ```bash
-python -m pip install git+https://github.com/aredden/nvreader.git
+python -m pip install git+https://github.com/aredden/nvimage_reader.git
 ```
 
 ### Usage
